@@ -107,6 +107,43 @@ The agents used in the following example implement exactly these questions:
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.sandbox.google.com/github/google-deepmind/concordia/blob/main/examples/tutorial.ipynb)
 
+### Idol fan motivation simulation
+
+The snippet below demonstrates how to run the virtual SNS environment and
+compare how `oshi` and `gachikoi` fans evaluate randomly generated events.
+
+```python
+from concordia.components.agent.fan_motivation import FanMotivation
+from concordia.environment.virtual_sns_environment import VirtualSnsEnvironment
+
+
+class DummyPlayer:
+    def __init__(self, fan_type: str):
+        self._fan_type = fan_type
+
+    def get_property(self, name: str) -> str:
+        if name == "fan_type":
+            return self._fan_type
+        raise KeyError(name)
+
+
+env = VirtualSnsEnvironment()
+oshi = FanMotivation(model=None, player=DummyPlayer("oshi"))
+gachikoi = FanMotivation(model=None, player=DummyPlayer("gachikoi"))
+
+# Advance one simulated day to give the environment a chance to emit events.
+for _ in range(24 * 60):
+    env.tick()
+
+for event in env.get_events():
+    print(event)
+    print("oshi reward:", oshi.evaluate_event(event))
+    print("gachikoi reward:", gachikoi.evaluate_event(event))
+```
+
+Running the code prints the random idol events along with the reward each fan
+type assigns to them.
+
 ## Citing Concordia
 
 If you use Concordia in your work, please cite the accompanying article:
